@@ -82,7 +82,54 @@ The answers to the previous questions are:
 
 ## Pcap's analysis  
 
-Here will come a deeper analysis of the pcap.
+This section will present an in-depth description of the analysis done on the pcap file. The analysis was done using the
+[Wireshark][link8] software, version 4.2.2. The same software is going to be used through this dissection.  
+
+As previously mentioned, the pcap file used for this project was taken from the
+[Unit 42 Wireshark Quiz, February 2023][link1] activity, and it's referenced [here][link7], where it can be downloaded
+and extracted using the password "infected".  
+
+The first thing that was looked in the pcap, it was the "Conversations" tab on Wireshark. To access this tab follow the
+instruction:  
+
+> Open the [pcap][link7] on Wireshark > Statistics > Conversations
+
+This tab will open the following window:  
+
+![Conversations Tab](Conversation_Tab.png)  
+
+Within the "Conversations" tab, the first thing to be looked at will be the "IPV4" transmission.  
+
+![IPV4 Transmissions](IPV4_Transmissions.png)  
+
+1. Selecting the IPV4 transmissions;  
+2. Sorting the transmission by the size of bytes in each connection, from higher to lower;  
+3. Taking notes of the IP addresses with high rate of bytes for further analysis.  
+
+A similar look-up will also be done but now within the "TCP" connections.  
+
+![TCP Transmission](TCP_Transmissions.png)  
+
+1. Selecting the TCP transmission;  
+2. Sorting the connection by the byte size, from higher to lower;  
+3. Making notes of the IP addresses with high rate of bytes transmission for further analysis.  
+
+Some of the IP addresses contained in the "TCP" section match the ones in the "IPV4" section. A high rate of byte
+transmission can be considered an **IoC** (*Indicators of Compromise*).  
+
+This first step of looking through the "Conversations" section of the pcap makes it easier to understand the full scope
+of the traffic contained in this file. Even if not all those connections are suspicious in nature, it is a good idea to
+go through this section and take notes of those addresses to have them in mind for later analyses and comparisons.  
+
+The next step is to check the network transmissions contained in the traffic.  
+
+Most forms of malware have to use some sort of network connection to the target to be delivered via payload (infected
+file or application), receive directives from the threat actor when it's already installed on the target's system, using
+**C2** (*Command and Control*), and, in some cases, exfiltrate stolen data to a remote server or back to the attacker.  
+
+The look-up will be done using a filter for the most common network protocols.  
+
+![]()
 
 ---
 
@@ -98,3 +145,5 @@ Here will come the conclusion and notes.
 [link4]: https://github.com/ItaloHugoMDS/Threat_Hunting?tab=readme-ov-file#reports-summary
 [link5]: https://github.com/ItaloHugoMDS/Threat_Hunting?tab=readme-ov-file#pcaps-analysis
 [link6]: https://github.com/ItaloHugoMDS/Threat_Hunting?tab=readme-ov-file#conclusion
+[link7]: https://github.com/pan-unit42/Wireshark-quizzes/blob/main/2023-02-Unit42-Wireshark-quiz.pcap.zip
+[link8]: https://www.wireshark.org/download.html
