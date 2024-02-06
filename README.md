@@ -89,30 +89,30 @@ As previously mentioned, the pcap file used for this project was taken from the
 [Unit 42 Wireshark Quiz, February 2023][link1] activity, and it's referenced [here][link7], where it can be downloaded
 and extracted using the password "infected".  
 
-The first thing that was looked in the pcap, it was the "Conversations" tab on Wireshark. To access this tab follow the
+**The first** thing looked in the pcap was the "Conversations" tab in Wireshark. To access this tab follow the
 instruction:  
 
 > Open the [pcap][link7] on Wireshark > Statistics > Conversations
 
 This tab will open the following window:  
 
-![Conversations Tab](Conversation_Tab.png)  
+![Conversations Tab](Conversation_Tab.png "Conversations Tab")  
 
 Within the "Conversations" tab, the first thing to be looked at will be the "IPV4" transmission.  
 
-![IPV4 Transmissions](IPV4_Transmissions.png)  
+![IPV4 Transmissions](IPV4_Transmissions.png "IPV4 Transmissions")  
 
 1. Selecting the IPV4 transmissions;  
 2. Sorting the transmission by the size of bytes in each connection, from higher to lower;  
-3. Taking notes of the IP addresses with high rate of bytes for further analysis.  
+3. Taking notes of the IP addresses with a high rate of byte transmissions for further analysis.  
 
 A similar look-up will also be done but now within the "TCP" connections.  
 
-![TCP Transmission](TCP_Transmissions.png)  
+![TCP Transmission](TCP_Transmissions.png "TCP Transmission")  
 
 1. Selecting the TCP transmission;  
 2. Sorting the connection by the byte size, from higher to lower;  
-3. Making notes of the IP addresses with high rate of bytes transmission for further analysis.  
+3. Making notes of the IP addresses with a high rate of byte transmissions for further analysis.  
 
 Some of the IP addresses contained in the "TCP" section match the ones in the "IPV4" section. A high rate of byte
 transmission can be considered an **IoC** (*Indicators of Compromise*).  
@@ -121,13 +121,66 @@ This first step of looking through the "Conversations" section of the pcap makes
 of the traffic contained in this file. Even if not all those connections are suspicious in nature, it is a good idea to
 go through this section and take notes of those addresses to have them in mind for later analyses and comparisons.  
 
-The next step is to check the network transmissions contained in the traffic.  
+**The next step** is to check the network transmissions contained in the traffic.  
 
-Most forms of malware have to use some sort of network connection to the target to be delivered via payload (infected
-file or application), receive directives from the threat actor when it's already installed on the target's system, using
+Most forms of malware have to use some sort of network connection to be delivered via payload (infected file or
+application), receive directives from the threat actor when it's already installed on the target's system, using
 **C2** (*Command and Control*), and, in some cases, exfiltrate stolen data to a remote server or back to the attacker.  
 
-The look-up will be done using a filter for the most common network protocols.  
+The look-up will be done using a Wireshark filter for the most common network protocols.  
+
+![Web Traffic](Web_Traffic.png "Web Traffic")  
+
+1. The filter used includes all the **HTTP requests** and **TLS handshakes** connections going to the outside addresses
+on the internet. The yellow highlighted frames indicate TLS connections;  
+2. In this item, it can be seen **the first answer** for the requirements, the **IP address** for the infected client:
+**10.0.0.149**. Using this information, it's possible to get to the **MAC address** of the device:
+**00:21:5d:9e:42:fb**. This information leads to the next answer for the **host name** of the machine:
+**DESKTOP-E7FHJS4**;  
+3. This item shows all the outside address which the connections are trying to reach out;  
+4. The forth item is the one that highlights the most in the investigation as an **IoC**. A random unencrypted
+connection reaching out to a server with no hostname resolution. This connection will be the starting
+point for the investigation;  
+
+Analyzing the web traffic connections helps to narrow the scope of the data contained in the file. Furthermore, as
+previously mentioned, viruses/malwares tend to be delivered by or make use of network protocols, for that reason looking
+at those protocols first tends to be the initial step while investigating for **IoCs**.  
+
+The forth highlighted item in the web traffic analysis is **the next step** to be evaluated. The **TCP stream** of this
+connection will be looked into.  
+
+![TCP Stream from Rogue HTTP Connection](TCP_Stream_from_Rogue_HTTP_Connection.png "TCP Stream from Rogue HTTP Connection")  
+
+1. The first unusual detail about this **HTTP request** is the "User Agent" section. It usually contains information 
+regarding the device from which the HTTP request was made and some information related to the application, usually a web
+browser, that generated the call. However, for this stream, the request was made from the CLI program
+**Curl**, which is an unusual behaviour for a regular user of the system;  
+2. Another element of strangeness about this request is the server's destination. The "Server" section should contain
+the domain name for the server (e.g. google.com), but it only presents a generic name of the software being used by the
+server. So far, this connection can be considered suspicious in nature due those aspects;  
+3. The content of this stream can also be considered suspicious. The first flag to be raised is the indication that the
+data being transmitted is a **Windows binary**. The highlighted section in this third element shows that;  
+4. A confirmation that this payload contains a Windows executable file is the first segment of the data. Windows
+binaries usually contain the "MZ" characters as the initial data of an executable Windows payload;  
+5. The last element, it's the IP address of the destination server. The same address was listed on the "Conversations"
+section containing 2 MB of data transmitted within this TCP connection.  
+
+This suspicious stream will be further looked into by analysing the protocols involving this connection call.  
+
+![Rogue HTTP Connection DNS Analysis](Rogue_HTTP_Connection_DNS_Analysis.png "Rogue_HTTP_Connection_DNS_Analysis")  
+
+1. The filter used was the same on the network protocol look-up with the addition of the **TCP SYN** and **DNS**
+connections. Those protocols are related to network traffic and are being added to further understand the previously
+seen web connections. The green highlighted frames are **TCP SYN** packets;  
+2. The second highlighted element shows the previously discussed HTTP request. This connection doesn't have any DNS
+that could have been resolved on the IP address in question, so it doesn't seem to be initiated by the user
+intentionally going to this address;  
+3. This section shows the previous connections were done to a Microsoft login page, which could indicate that this
+rogue connection might have been triggered by a fishing email sent to the user's Microsoft email. However, since most of
+the connections are encrypted, this can be verified, so it's still a hypothesis.  
+
+Now that the malicious connection has been identified, it's time to analyse the archive sent to the infected machine by
+the server through this malicious connection.  
 
 ![]()
 
