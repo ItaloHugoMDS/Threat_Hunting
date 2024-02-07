@@ -51,7 +51,7 @@ The requirements for the solution are the following:
 Additionally:
 
 - The IP(s) and Port(s) associated with the infection;  
-- Possible ways through which the infection started;  
+- Ways through which the infection started;  
 - What kind of virus/malware behaves similarly to the one portrayed on the pcap;  
 - What is the method of infection;
 
@@ -74,7 +74,8 @@ The answers to the previous questions are:
     - 23.111.114.52: 65400;  
     - Many connection attempts to several email servers: 25 (SMTP);  
 
-- Pathway which the infection started (**threat vector**): **Possible social engineering attack via malicious email**;  
+- Pathway which the infection started (**threat vector**): **Possible social engineering attack via malicious email link
+(phishing attack)**;  
 - Kind of virus/malware: A variation of the **Qakbot** or a **VNC-based** kind of malware;  
 - Method of infection: **Malicious DLL infection**;  
 
@@ -88,6 +89,8 @@ This section will present an in-depth description of the analysis done on the pc
 As previously mentioned, the pcap file used for this project was taken from the
 [Unit 42 Wireshark Quiz, February 2023][link1] activity, and it's referenced [here][link7], where it can be downloaded
 and extracted using the password "infected".  
+
+### Finding the root cause  
 
 **The first** thing looked in the pcap was the "Conversations" tab in Wireshark. To access this tab follow the
 instruction:  
@@ -114,8 +117,8 @@ A similar look-up will also be done but now within the "TCP" connections.
 2. Sorting the connection by the byte size, from higher to lower;  
 3. Making notes of the IP addresses with a high rate of byte transmissions for further analysis.  
 
-Some of the IP addresses contained in the "TCP" section match the ones in the "IPV4" section. A high rate of byte
-transmission can be considered an **IoC** (*Indicators of Compromise*).  
+Some of the IP addresses contained in the "TCP" section match the ones in the "IPV4" section. **In some cases**, a high
+rate of byte transmitted during a connection can be considered an **IoC** (*Indicators of Compromise*).  
 
 This first step of looking through the "Conversations" section of the pcap makes it easier to understand the full scope
 of the traffic contained in this file. Even if not all those connections are suspicious in nature, it is a good idea to
@@ -137,7 +140,7 @@ on the internet. The yellow highlighted frames indicate TLS connections;
 **10.0.0.149**. Using this information, it's possible to get to the **MAC address** of the device:
 **00:21:5d:9e:42:fb**. This information leads to the next answer for the **host name** of the machine:
 **DESKTOP-E7FHJS4**;  
-3. This item shows all the outside address which the connections are trying to reach out;  
+3. This item shows all the outside addresses which the connections are trying to reach out;  
 4. The forth item is the one that highlights the most in the investigation as an **IoC**. A random unencrypted
 connection reaching out to a server with no hostname resolution. This connection will be the starting
 point for the investigation;  
@@ -165,7 +168,7 @@ binaries usually contain the "MZ" characters as the initial data of an executabl
 5. The last element, it's the IP address of the destination server. The same address was listed on the "Conversations"
 section containing 2 MB of data transmitted within this TCP connection.  
 
-This suspicious stream will be further looked into by analysing the protocols involving this connection call.  
+This suspicious stream will be further looked into by analysing the protocols involving this connection.  
 
 ![Rogue HTTP Connection DNS Analysis](Rogue_HTTP_Connection_DNS_Analysis.png "Rogue_HTTP_Connection_DNS_Analysis")  
 
@@ -173,14 +176,63 @@ This suspicious stream will be further looked into by analysing the protocols in
 connections. Those protocols are related to network traffic and are being added to further understand the previously
 seen web connections. The green highlighted frames are **TCP SYN** packets;  
 2. The second highlighted element shows the previously discussed HTTP request. This connection doesn't have any DNS
-that could have been resolved on the IP address in question, so it doesn't seem to be initiated by the user
+search associated with it that could have been resolved on the IP address in question. So it doesn't seem to 
+be initiated by the user
 intentionally going to this address;  
-3. This section shows the previous connections were done to a Microsoft login page, which could indicate that this
+3. This section shows that the previous connections were done to a Microsoft login page, which could indicate that this
 rogue connection might have been triggered by a fishing email sent to the user's Microsoft email. However, since most of
-the connections are encrypted, this can be verified, so it's still a hypothesis.  
+the connections are encrypted, this can be verified, so it's still a hypothesis. This element is the answer for the
+**ways through which the infection started**: **Possible fishing attack**.  
 
 Now that the malicious connection has been identified, it's time to analyse the archive sent to the infected machine by
 the server through this malicious connection.  
+
+![Extraction of Malicious File](Extraction_of_Malicious_File.png "Extraction of Malicious File")  
+
+1. The file transferred through the rogue HTTP connection was preserved on the pcap. Therefore, it can be extracted for
+more analysis. Something to be noticed is the extension of malicious file. The file is labelled as a ".dat" extension
+when in fact, as previously assessed, it appeared to be a Windows executable file. This can be considered as another
+**IoC**, since the file is trying to disguise its original extension.  
+
+**The next step** is to analyze this malicious file by researching more about it. The first step will be to confirm the
+original file extension and generate a hash.  
+
+![Malicious File Extension and Hash](Malicious_File_Extension_and_Hash.png "Malicious File Extension and Hash")
+
+1. Confirming the previously discussed **IoC**, the file is a Windows executable with a "DLL" extension. This is a 
+common tactic used to avoid detection, hiding the file's original extension by its name;  
+2. The SHA256 hash generated by the file which will be used for further research later on. This item is the answer for
+the requirement **SHA256 hash of the malicious file**:
+**713207d9d9875ec88d2f3a53377bf8c2d620147a4199eb183c13a7e957056432** 
+
+At this point, it's very likely that the connection and the analysed file came from a source with malicious intention.
+To confirm this, the previously generated SHA256 hash of the malicious file will be used to confirm the level of threat
+imposed by it and, consequentially, ensure the malicious nature of the file as well as the rogue HTTP data stream.  
+
+The website used for this verification will be [VirusTotal][link9]. A website which stores a database of information
+regarding security issues about websites, files, domains, etc.  
+
+![Hash Checking Malicious File](Hash_Checking_Malicious_File.png "Hash Checking Malicious File")  
+
+1. The hash cypher from the malicious file;  
+2. The second element confirms the maliciousness of the binary file. Fifty out of sixty-eight vendors have flagged this
+hash as a malicious sort of program;  
+3. This item confirms the file extension obfuscation tactic, since it confirms the archive to be a ".dll" file and not a
+".dat", as it was initially labelled. This section answers the question regarding the **method of infection**:
+**Malicious DLL infection**;  
+4. The forth element points to the information related to the possible source of this malware. One of the vendors
+flagged this hash as being part of **Qakbot** malware. This is the initial pointer to what kind of infection this may
+have been. Other indicators will follow up on this lead;  
+5. Here it's possible to check the final confirmation that this binary executable is indeed malicious in nature. Several
+vendors have confirmed that this hash is associated with a **trojan** malware or some sort of malicious **bot**.  
+
+Up until this section, it is possible to ensure that this rogue HTTP call, which led to the download of a malicious
+file, was the root cause of this infection.  
+
+### More suspicious network activities  
+
+**Following up** on the analysis and returning to the webtraffic contained on the pcap file, other unusual behaviours
+are highlighted amongst the traffic. The Wireshark filter was the same one used to get to the rogue HTTP connection.  
 
 ![]()
 
@@ -200,3 +252,4 @@ Here will come the conclusion and notes.
 [link6]: https://github.com/ItaloHugoMDS/Threat_Hunting?tab=readme-ov-file#conclusion
 [link7]: https://github.com/pan-unit42/Wireshark-quizzes/blob/main/2023-02-Unit42-Wireshark-quiz.pcap.zip
 [link8]: https://www.wireshark.org/download.html
+[link9]: https://www.virustotal.com
