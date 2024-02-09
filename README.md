@@ -276,12 +276,12 @@ resulted in the initial TCP streams, therefore, these are rogue and untrusted co
 Further down in the pcap, similar connections to the one previously discussed show up. Again, the aspect that gets 
 highlighted as a flag for suspicion is the missing hostname resolution to the destination server.  
 
-![](./images/Encrypted_Traffic_2.png)
+![](./images/Encrypted_Traffic_2.png "Encrypted Traffic 2")
 
 1. A similar connection, without hostname resolution, going to 208.187.122.74;  
 2. A new set of connections going to 5.75.205.43, again with no hostname resolution.  
 
-Both connections are going to be analysed just like the insecure HTTPS by following the same method of authentication
+Both connections are going to be analyzed just like the insecure HTTPS by following the same method of authentication
 involving the issuer of the certifications.  
 
 Evaluation for the IP address: 208.187.122.74 
@@ -310,7 +310,7 @@ addresses, which can be seen in the next picture:
 
 ![Encrypted Traffic 2 - Lack of DNS](./images/Encrypted_Traffic_2_Lack_of_DNS.png "Encrypted Traffic 2 - Lack of DNS")  
 
-The secure suspicious connections are highlighted, but again, no previous queries for the addresses, making those rogue
+The suspicious connections are highlighted, but again, no previous queries for the addresses, making those rogue
 connection and, in conclusion, malicious.  
 
 During the assessment of the DNS and TCP frames, other strange behaviours were noticed, this time involving TCP
