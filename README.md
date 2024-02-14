@@ -121,7 +121,7 @@ Some of the IP addresses contained in the "TCP" section match the ones in the "I
 rate of byte transmitted during a connection can be considered an **IoC** (*Indicators of Compromise*).  
 
 This first step of looking through the "Conversations" section of the pcap makes it easier to understand the full scope
-of the traffic contained in this file. Even if not all those connections are suspicious in nature, it is a good idea to
+of the traffic contained in this file. Even if all those connections are not suspicious in nature, it is a good idea to
 go through this section and take notes of those addresses to have them in mind for later analyses and comparisons.  
 
 **The next step** is to check the network transmissions contained in the traffic.  
@@ -176,9 +176,8 @@ This suspicious stream will be further looked into by analysing the protocols in
 connections. Those protocols are related to network traffic and are being added to further understand the previously
 seen web connections. The green highlighted frames are **TCP SYN** packets;  
 2. The second highlighted element shows the previously discussed HTTP request. This connection doesn't have any DNS
-search associated with it that could have been resolved on the IP address in question. So it doesn't seem to 
-be initiated by the user
-intentionally going to this address;  
+search associated with it, which could have been resolved on the IP address in question. So it doesn't seem to 
+be initiated by the user intentionally going to this address;  
 3. This section shows that the previous connections were done to a Microsoft login page, which could indicate that this
 rogue connection might have been triggered by a fishing email sent to the user's Microsoft email. However, since most of
 the connections are encrypted, this can be verified, so it's still a hypothesis. This element is the answer for the
@@ -206,15 +205,15 @@ the requirement **SHA256 hash of the malicious file**:
 **713207d9d9875ec88d2f3a53377bf8c2d620147a4199eb183c13a7e957056432** 
 
 At this point, it's very likely that the connection and the analysed file came from a source with malicious intention.
-To confirm this, the previously generated SHA256 hash of the malicious file will be used to confirm the level of threat
-imposed by it and, consequentially, ensure the malicious nature of the file as well as the rogue HTTP data stream.  
+The previously generated SHA256 hash will be used to confirm the level of threat
+imposed by the file and, consequentially, ensure the malicious nature of it as well as the rogue HTTP data stream.  
 
 The website used for this verification will be [VirusTotal][link9]. A website which stores a database of information
-regarding security issues about websites, files, domains, etc.  
+regarding security issues on websites, files, domains, etc.  
 
 ![Hash Checking Malicious File](./images/Hash_Checking_Malicious_File.png "Hash Checking Malicious File")  
 
-1. The hash cypher from the malicious file;  
+1. The hash cipher from the malicious file;  
 2. The second element confirms the maliciousness of the binary file. Fifty out of sixty-eight vendors have flagged this
 hash as a malicious sort of program;  
 3. This item confirms the file extension obfuscation tactic, since it confirms the archive to be a ".dll" file and not a
@@ -252,7 +251,7 @@ the session.
 ![Certification Analysis 1](./images/Certification_Analysis_1.png "Certification Analysis 1")  
 
 1. The frame that's been analysed, which is the *server hello* during the process of the TLS Handshake;  
-2. Some details are highlighted as odd in this section. The following details are considered as suspicious:  
+2. Some details are highlighted as odd in this section. The following details are considered suspicious:  
    1. The "State or Province" section doesn't match the "Country name" section, since "TA" is not a valid province in
 the Netherlands ("NL");  
    2. The "Locality name" section also doesn't match the information regarding the geolocation of the issuer for the
@@ -305,7 +304,7 @@ valid certification issuer company. This domain will be looked into in greater d
 The conclusion is that neither of those TCP/HTTPS connections are reliable. Therefore, the data transmitted over them
 are untrustworthy and, consequently, malicious in nature.  
 
-As well as the first malicious HTTP connection, neither of the previous ones has a DNS query resolved into the IP
+As well as the first malicious HTTP connections, neither of the previous ones have a DNS query resolved into the IP
 addresses, which can be seen in the next picture:  
 
 ![Encrypted Traffic 2 - Lack of DNS](./images/Encrypted_Traffic_2_Lack_of_DNS.png "Encrypted Traffic 2 - Lack of DNS")  
@@ -313,11 +312,57 @@ addresses, which can be seen in the next picture:
 The suspicious connections are highlighted, but again, no previous queries for the addresses, making those rogue
 connection and, in conclusion, malicious.  
 
-During the assessment of the DNS and TCP frames, other strange behaviours were noticed, this time involving TCP
+During the assessment of the DNS and TCP frames, other strange behaviors were noticed, this time involving TCP
 connections.  
 
-![](./images/)
+![](./images/Rogue_TCP_Connection.png)  
 
+1. A TCP connection going to **23.111.114.52** on port 65400. No previous DNS queries resulted in this address,
+therefore, this seems to be another rogue connection. The port used in the connection is one more detail to be
+suspicious, since this port is not commonly associated with any type of network protocol.  
+2. Another TCP connection, this time going to **78.31.67.7** on port 443 (HTTPS). Again, no previous DNS queries that
+could have resulted in this IP address. This time, the connection is using a known port. However, no TLS session was
+started by this stream, so the connection is using a port associated with an HTTPS protocol, but there is no sign of 
+behaviour associated with this protocol. This is a flag for suspicious activities.  
+3. The third item is an interesting behavior. An SSL connection was established before the rogue TCP connections
+started. By itself, an SSL connection doesn't present any sort of threat, but since suspicious traffic is contained
+right after this connection, this SSL stream becomes something to be aware of.  
+
+**The following steps** are going to be focused on looking deeper into those rogue TCP connections.  
+
+Analysis of the **23.111.114.52** traffic:  
+
+![Traffic Rogue TCP 1](./images/Traffic_Rogue_TCP_1.png "Traffic Rogue TCP 1")  
+
+Most of the data within this stream seems to be encoded. Although, some details were decoded as ASCII characters and
+were highlighted in the image. This traffic contains a lot of mail server addresses. This data is suspicious because
+later in the transmissions, many DNS queries are done for several mail servers.  
+
+Analysis of the **78.31.67.7** traffic:  
+
+![Traffic Rogue TCP 2](./images/Traffic_Rogue_TCP_2.png "Traffic Rogue TCP 2")  
+
+Again, most of the data is encoded or encrypted.  
+
+One detail that stands out within both traffics is the constant transmission both from the server and client machine.
+The constant data traffic coming and going from both sides as well as the encoded data, the SSL connection, and the
+rogue TCP streams make this traffic very likely to be a **C2** (*Command and Control*) type of traffic.  
+
+The detail that confirms this theory is the mail servers addresses sent from the server (in *23.111.114.52*) to the
+client (in *10.0.0.149*). Which later in the traffic appear in the form or DNS queries as shown in the following
+picture.  
+
+![DNS Queries](./images/DNS_Queries.png "DNS Queries")  
+
+Some of the mail addresses highlighted here were also present in the data streamed from the *23.111.114.52* IP address.
+This confirms the C2 traffic contained within those rogue TCP connections.  
+
+### The root of the problem  
+
+Returning to the web traffic transmission, a specific set of connections stand out due to the detail involving the
+certification. The connections are the following:  
+
+![Web Traffic Malware Source](./images/Web_Traffic_Malware_Source.png "Web Traffic Malware Source")  
 
 ---
 
