@@ -275,7 +275,7 @@ resulted in the initial TCP streams, therefore, these are rogue and untrusted co
 Further down in the pcap, similar connections to the one previously discussed show up. Again, the aspect that gets 
 highlighted as a flag for suspicion is the missing hostname resolution to the destination server.  
 
-![](./images/Encrypted_Traffic_2.png "Encrypted Traffic 2")
+![Encrypted Traffic 2](./images/Encrypted_Traffic_2.png "Encrypted Traffic 2")
 
 1. A similar connection, without hostname resolution, going to 208.187.122.74;  
 2. A new set of connections going to 5.75.205.43, again with no hostname resolution.  
@@ -315,7 +315,7 @@ connection and, in conclusion, malicious.
 During the assessment of the DNS and TCP frames, other strange behaviors were noticed, this time involving TCP
 connections.  
 
-![](./images/Rogue_TCP_Connection.png)  
+![Rogue TCP Connection](./images/Rogue_TCP_Connection.png "Rogue TCP Connection")  
 
 1. A TCP connection going to **23.111.114.52** on port 65400. No previous DNS queries resulted in this address,
 therefore, this seems to be another rogue connection. The port used in the connection is one more detail to be
