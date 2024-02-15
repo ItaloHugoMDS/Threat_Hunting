@@ -170,7 +170,7 @@ section containing 2 MB of data transmitted within this TCP connection.
 
 This suspicious stream will be further looked into by analysing the protocols involving this connection.  
 
-![Rogue HTTP Connection DNS Analysis](./images/Rogue_HTTP_Connection_DNS_Analysis.png "Rogue_HTTP_Connection_DNS_Analysis")  
+![Rogue HTTP Connection DNS Analysis](./images/Rogue_HTTP_Connection_DNS_Analysis.png "Rogue HTTP Connection DNS Analysis")  
 
 1. The filter used was the same on the network protocol look-up with the addition of the **TCP SYN** and **DNS**
 connections. Those protocols are related to network traffic and are being added to further understand the previously
