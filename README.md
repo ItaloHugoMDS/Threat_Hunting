@@ -90,7 +90,7 @@ As previously mentioned, the pcap file used for this project was taken from the
 [Unit 42 Wireshark Quiz, February 2023][link1] activity, and it's referenced [here][link7], where it can be downloaded
 and extracted using the password "infected".  
 
-### Finding the root cause  
+### The begining of the problem  
 
 **The first** thing looked in the pcap was the "Conversations" tab in Wireshark. To access this tab follow the
 instruction:  
