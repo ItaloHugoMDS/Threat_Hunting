@@ -359,10 +359,31 @@ This confirms the C2 traffic contained within those rogue TCP connections.
 
 ### The root of the problem  
 
-Returning to the web traffic transmission, a specific set of connections stand out due to the detail involving the
-certification. The connections are the following:  
+Returning to the web traffic transmissions, a specific set of connections stood out due to the details involving the
+certification provided by the destination server. The connections are the following:  
 
 ![Web Traffic Malware Source](./images/Web_Traffic_Malware_Source.png "Web Traffic Malware Source")  
+
+The information that highlighted the most involving those connections were the "Organization name" and "Common name"
+fields, as shown in the following image:  
+
+![Fake Certification Credentials](./images/Fake_Certification_Credentials.png "Fake Certification Credentials")  
+
+Usually, these fields contain information related to the name of certification-issuing companies responsible for
+authenticating and ensuring the legitimacy of the connection.  
+
+However, despite the information regarding the location appearing to be legitimate, the *"vipsauna.com"* domain isn't
+trustworthy or even related to the certification-issuing business.  
+
+Therefore, as previously assessed, this connection is illegitimate and insecure, in conclusion, it is a malicious
+in nature.  
+
+Investigating this domain will be **the next step** into the analysis of this malware.  
+
+![Malware Discovery](./images/Malware_Discovery.png "Malware Discovery")  
+
+By performing a simple Google search over the domain, an article from the [SANS][link10] institute makes reference to
+the domain in question.  
 
 ---
 
@@ -381,3 +402,5 @@ Here will come the conclusion and notes.
 [link7]: https://github.com/pan-unit42/Wireshark-quizzes/blob/main/2023-02-Unit42-Wireshark-quiz.pcap.zip
 [link8]: https://www.wireshark.org/download.html
 [link9]: https://www.virustotal.com
+[link10]: https://isc.sans.edu
+[link11]: https://isc.sans.edu/diary/aa+distribution+Qakbot+Qbot+infection+with+DarkVNC+traffic/28568/
