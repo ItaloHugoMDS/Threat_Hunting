@@ -45,7 +45,7 @@ The requirements for the solution are the following:
 - The **IP address** of the infected client machine;  
 - The **MAC address** of the infected client machine;  
 - The **host name** for the infected client machine;  
-- The **Windows user account name** of the infected client machine;  
+- The **Windows account username** of the infected client machine;  
 - The **SHA256** hash from the malicious file retrieved from the pcap;  
 
 Additionally:
@@ -62,7 +62,7 @@ The answers to the previous questions are:
 - The **IP address** for the infected client: **10.0.0.149**;  
 - The **MAC address** for the infected client: Address: **00:21:5d:9e:42:fb**;  
 - The **host name** of the infected client: **DESKTOP-E7FHJS4**;  
-- The **Windows user account name**: **damon.bauer**;  
+- The **Windows account username**: **damon.bauer**;  
 - **SHA256** hash of the file: **713207d9d9875ec88d2f3a53377bf8c2d620147a4199eb183c13a7e957056432**;  
 - **IP(s)** and **Port(s)** associated with the infection:  
 
@@ -382,8 +382,31 @@ Investigating this domain will be **the next step** into the analysis of this ma
 
 ![Malware Discovery](./images/Malware_Discovery.png "Malware Discovery")  
 
-By performing a simple Google search over the domain, an article from the [SANS][link10] institute makes reference to
-the domain in question.  
+By performing a simple Google search for the domain, an article from the [SANS][link10] institute makes reference to it.
+Within this article, more details regarding the kind of virus are presented.  
+
+![Malware Discovery SANS Article](./images/Malware_Discovery_SANS_Article.png "Malware Discovery SANS Article")  
+
+The article, referenced [here][link11], from Mr.[@brad-duncan][link3], describes the behavior of **Qakbot** malware with **DarkVNC** type of
+traffic. The traffic described in this article seems much like with the one described in this analysis, even some of the
+IP addresses are similar.  
+
+Therefore, it is possible to say that the malware portrayed in this analysis is the same, or a
+variant, from the one described by Mr. Duncan in his article for the SANS institute. This is the answer for the
+**kind of virus/malware**: **A variation of the Qakbot or a VNC-based kind of malware**.  
+
+The last detail to finalize the analysis is to find out the username of the Windows account that was compromised.  
+
+This pcap was taken from a Windows **AD** (*Active Directory*) environment. Thus, it contains traffic from the
+Windows AD and the protocols related to the system. The most common protocol is the "*Kerberos*" and it will be used to
+filter through the traffic.  
+
+![Kerberos Traffic](./images/Kerberos_Traffic.png "Kerberos Traffic")  
+
+1. The filter used to search for the Kerberos traffic contained within the pcap;  
+2. This item shows the username assigned to the IP address related to the infected machine. Here it comes the answer for
+the **Windows account username**: **damon bauer**.
+
 
 ---
 
