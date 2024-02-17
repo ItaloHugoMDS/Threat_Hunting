@@ -387,9 +387,9 @@ Within this article, more details regarding the kind of virus are presented.
 
 ![Malware Discovery SANS Article](./images/Malware_Discovery_SANS_Article.png "Malware Discovery SANS Article")  
 
-The article, referenced [here][link11], from Mr.[@brad-duncan][link3], describes the behavior of **Qakbot** malware with **DarkVNC** type of
-traffic. The traffic described in this article seems much like with the one described in this analysis, even some of the
-IP addresses are similar.  
+The article from Mr.[@brad-duncan][link3], referenced [here][link11], describes the behavior of **Qakbot** malware with
+**DarkVNC** type of traffic. The traffic described in this article seems alike with the one described in this analysis. 
+Even some of the IP addresses are similar.  
 
 Therefore, it is possible to say that the malware portrayed in this analysis is the same, or a
 variant, from the one described by Mr. Duncan in his article for the SANS institute. This is the answer for the
@@ -405,14 +405,28 @@ filter through the traffic.
 
 1. The filter used to search for the Kerberos traffic contained within the pcap;  
 2. This item shows the username assigned to the IP address related to the infected machine. Here it comes the answer for
-the **Windows account username**: **damon bauer**.
+the **Windows account username**: **damon bauer**.  
 
 
 ---
 
 ## Conclusion  
 
-Here will come the conclusion and notes. 
+Viruses and malwares are constantly improving in the way they spread, infect, and exfiltrate data from compromised
+systems. However, most of the tactis used by them can be perceived within the network level. That's why the activity of
+network analysis and threat hunting stand out as important skills in the field of cybersecurity.  
+
+This project was made possible by:  
+
+- [PaloAlto's Unit42][link2] team;
+- [@brad-duncan][link3];
+- [Chris Greer][link12];
+- [David Bombal][link13]
+
+These people provided me with the knowledge and resource to be able to complete this project. I thank them immensely for
+sharing and helping people like me on understanding and putting in practice new skills. Thank you all!  
+
+#### *"If I have seen further it is by standing on the shoulders of Giants."* Isaac Newton (1642-1727)  
 
 ---
 
@@ -427,3 +441,5 @@ Here will come the conclusion and notes.
 [link9]: https://www.virustotal.com
 [link10]: https://isc.sans.edu
 [link11]: https://isc.sans.edu/diary/aa+distribution+Qakbot+Qbot+infection+with+DarkVNC+traffic/28568/
+[link12]: https://www.youtube.com/channel/UCHN1aYRP473xX6Z13H_mxMQ
+[link13]: https://www.youtube.com/@davidbombal
